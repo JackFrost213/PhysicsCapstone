@@ -1,0 +1,34 @@
+2000 Data Points:
+
+1 Thread:
+Time Taken: 24.697705200
+
+10 Threads:
+Time Taken: 7.149406700
+
+20 Threads:
+Time Taken: 6.587751300
+
+25 Threads:
+Time Taken: 6.960977700
+
+30 Threads:
+Time Taken: 6.768524400
+
+50 Threads:
+Time Taken: 7.597396600
+
+150 Threads:
+Time Taken: 9.535684900
+
+
+5000 Data Points:
+
+1 Thread:
+Time Taken: 57.788841100
+
+30 Threads:
+Time Taken: 17.407969700
+
+150 Threads:
+Time Taken: 15.648556900
