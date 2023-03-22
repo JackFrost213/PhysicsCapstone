@@ -42,7 +42,7 @@ public class PositionGraph extends JFrame{
         JPanel chartPanel = createChartPanel();
         add(chartPanel, BorderLayout.CENTER);
  
-        setSize(640, 480);
+        setSize(700, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         COMFrame = centerOfMassFrame;

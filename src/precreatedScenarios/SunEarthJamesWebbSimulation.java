@@ -23,18 +23,20 @@ import com.jme3.scene.control.LightControl;
 import com.jme3.texture.Texture;
 
 import guiStuff.TopGUI;
+import main.ChaosGenerator;
 import main.ChaosNumber;
 import main.DifferentialEquationSolvers;
 import main.GravitationalCalculator;
-import main.SimulationMain;
 import main.Support3DOther;
 import main.TesterMethods;
+import main.runnable.SimulationMain;
 import precreatedObjects.Earth;
 import precreatedObjects.JamesWebbSpaceTelescope;
 import precreatedObjects.Moon;
 import precreatedObjects.SpaceObject;
 import precreatedObjects.Sun;
 import shapes3D.Geometry3D;
+import shapes3D.SpaceObjectFast;
 import twodplots.PositionGraph;
 
 public class SunEarthJamesWebbSimulation extends Simulation {
@@ -62,8 +64,8 @@ public class SunEarthJamesWebbSimulation extends Simulation {
 		
 		JamesWebbSpaceTelescope tele = new JamesWebbSpaceTelescope();
 		temp = new ArrayList<Vector3d>();
-		temp.add(new Vector3d(-1471600,0,0f));
-		//tele.activateBoosters(1471600,earth);
+		temp.add(new Vector3d(-1471603.356,0,0));
+		tele.activateBoosters(1471603,earth);
 		//Between 30.5 (collapses) and 30.7 (escapes)
 		temp.add(new Vector3d(0,0,30.6));
 		tele.setInitialConditions(temp);
@@ -82,14 +84,11 @@ public class SunEarthJamesWebbSimulation extends Simulation {
 		sunAndEarth.add(spaceObjects.get(0));
 		sunAndEarth.add(spaceObjects.get(2));
 		
+		 createInitialItemsPostPhase(500);
+		
 		if(this.app != null) {
-			for(SpaceObject s : spaceObjects) {
-				s.attachToNode(scalableNode);
-			}
 			SimulationMain main = (SimulationMain) app;
 			main.getRightSideGUI().setFocusObject(earth);
-			TopGUI.setSpeed(550);
-			
 			initializeSecondPositionGraph();
 		}
 		
@@ -119,8 +118,8 @@ public class SunEarthJamesWebbSimulation extends Simulation {
 		}
 	
 	@Override
-	public void analyzeChaosData(ChaosNumber smallestValue, ChaosNumber largestValue) {
-		System.out.println("Analysis of Lagrange Point Finder: ");
+	public void analyzeChaosData(ChaosNumber smallestValue, ChaosNumber largestValue, SpaceObject probe) {
+		System.out.println("Analysis of Lagrange Point Finder for L2: ");
 		System.out.println("Results of Sticky Stability Function: ");
 		double theoreticaldist = spaceObjects.get(0).getToScalePosition().distance(spaceObjects.get(2).getToScalePosition());
 		double theoreticalL2XPos = theoreticaldist * (1 + Math.pow(spaceObjects.get(0).getMass()/(3*spaceObjects.get(2).getMass()), 1.0/3.0));
@@ -130,8 +129,8 @@ public class SunEarthJamesWebbSimulation extends Simulation {
 		System.out.println("Analytical: " + smallestValue.getPosition());
 		System.out.println("Percent Error: " + 100*Math.abs(theoreticalL2.x - smallestValue.getPosition().x)/theoreticalL2.x);
 		System.out.println("\nAssociated Lyapunov Exponents: ");
-		System.out.println("The associated Lyapunov Exponent for " + smallestValue.getPosition() + " is " + smallestValue.getLyapunovExponents().x);
-		System.out.println("The associated Lyapunov Exponent for " + largestValue.getPosition() + " is " + largestValue.getLyapunovExponents().x);
+		System.out.println("The associated Largest Lyapunov Exponent for " + smallestValue.getPosition() + " is " + smallestValue.getLyapunovExponents().x);
+		System.out.println("The associated Largest Lyapunov Exponent for " + largestValue.getPosition() + " is " + largestValue.getLyapunovExponents().x);
 	}
 
 }

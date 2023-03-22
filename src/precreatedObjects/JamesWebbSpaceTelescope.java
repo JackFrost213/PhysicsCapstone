@@ -14,8 +14,8 @@ import com.jme3.scene.control.BillboardControl;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 
-import main.SimulationMain;
 import main.Support3DOther;
+import main.runnable.SimulationMain;
 import net.wcomohundro.jme3.math.Vector3d;
 import shapes3D.Geometry3D;
 import shapes3D.QuadShape;

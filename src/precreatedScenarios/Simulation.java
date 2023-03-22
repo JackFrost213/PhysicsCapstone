@@ -16,11 +16,12 @@ import com.jme3.scene.Spatial;
 
 import guiStuff.TopGUI;
 import main.ChaosNumber;
-import main.SimulationMain;
 import main.Support3DOther;
+import main.runnable.SimulationMain;
 import net.wcomohundro.jme3.math.Vector3d;
 import precreatedObjects.SpaceObject;
 import shapes3D.Geometry3D;
+import shapes3D.SpaceObjectFast;
 import twodplots.PositionGraph;
 
 public abstract class Simulation {
@@ -138,7 +139,7 @@ public abstract class Simulation {
 		return spaceObjects;
 	}
 	
-	public void analyzeChaosData(ChaosNumber smallestValue, ChaosNumber largestValue) {
+	public void analyzeChaosData(ChaosNumber smallestValue, ChaosNumber largestValue, SpaceObject probe) {
 		return;
 	}
 }

@@ -24,9 +24,9 @@ import com.jme3.texture.Texture;
 
 import guiStuff.TopGUI;
 import main.DifferentialEquationSolvers;
-import main.SimulationMain;
 import main.Support3DOther;
 import main.TesterMethods;
+import main.runnable.SimulationMain;
 import precreatedObjects.Earth;
 import precreatedObjects.JamesWebbSpaceTelescope;
 import precreatedObjects.Moon;
@@ -63,7 +63,7 @@ public class SunEarthJamesWebbL4Simulation extends Simulation {
 		temp.add(new Vector3d(0.5f*au,0,(float)Math.sqrt(Math.pow(au, 2) - Math.pow(0.5f*au, 2))));
 		//tele.activateBoosters(1471600,earth);
 		//Between 30.5 (collapses) and 30.7 (escapes)
-		temp.add(new Vector3d((float)(30.29*Math.cos(30*(Math.PI)/180)),(float)0,(float)(30.29*Math.sin(30*(Math.PI)/180))));
+		temp.add(new Vector3d(26.231,0,15.1359));
 		tele.setInitialConditions(temp);
 		
 		Sun sun = new Sun();

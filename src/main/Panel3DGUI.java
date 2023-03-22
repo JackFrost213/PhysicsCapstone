@@ -10,6 +10,8 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JTextField;
 
+import main.runnable.SimulationMain;
+
 /**
  *
  * @author hfrie

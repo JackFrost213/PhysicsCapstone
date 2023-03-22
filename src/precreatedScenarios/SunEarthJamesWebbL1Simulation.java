@@ -23,12 +23,13 @@ import com.jme3.scene.control.LightControl;
 import com.jme3.texture.Texture;
 
 import guiStuff.TopGUI;
+import main.ChaosGenerator;
 import main.ChaosNumber;
 import main.DifferentialEquationSolvers;
 import main.GravitationalCalculator;
-import main.SimulationMain;
 import main.Support3DOther;
 import main.TesterMethods;
+import main.runnable.SimulationMain;
 import precreatedObjects.Earth;
 import precreatedObjects.JamesWebbSpaceTelescope;
 import precreatedObjects.Moon;
@@ -66,7 +67,7 @@ public class SunEarthJamesWebbL1Simulation extends Simulation {
 		//temp.add(new Vector3d(10000,0,0f));
 		//tele.activateBoosters(1471600,earth);
 		//Between 30.5 (collapses) and 30.7 (escapes)
-		temp.add(new Vector3d((float)-0,(float)0,(float)30.00));
+		temp.add(new Vector3d(0,0,30));
 		tele.setInitialConditions(temp);
 		
 		Sun sun = new Sun();
@@ -131,4 +132,20 @@ public class SunEarthJamesWebbL1Simulation extends Simulation {
 		
 		}
 
+	@Override
+	public void analyzeChaosData(ChaosNumber smallestValue, ChaosNumber largestValue, SpaceObject probe) {
+		System.out.println("Analysis of Lagrange Point Finder for L1: ");
+		System.out.println("Results of Sticky Stability Function: ");
+		double theoreticaldist = spaceObjects.get(0).getToScalePosition().distance(spaceObjects.get(2).getToScalePosition());
+		double theoreticalL2XPos = theoreticaldist * (1 - Math.pow(spaceObjects.get(0).getMass()/(3*spaceObjects.get(2).getMass()), 1.0/3.0));
+		theoreticalL2XPos -= theoreticaldist;
+		Vector3d theoreticalL2 = new Vector3d(-theoreticalL2XPos, 0,0);
+		System.out.println("Theoretical: " + theoreticalL2);
+		System.out.println("Analytical: " + smallestValue.getPosition());
+		System.out.println("Percent Error: " + 100*Math.abs(theoreticalL2.x - smallestValue.getPosition().x)/theoreticalL2.x);
+		System.out.println("\nAssociated Lyapunov Exponents: ");
+		System.out.println("The associated Largest Lyapunov Exponent for " + smallestValue.getPosition() + " is " + smallestValue.getLyapunovExponents().x);
+		System.out.println("The associated Largest Lyapunov Exponent for " + largestValue.getPosition() + " is " + largestValue.getLyapunovExponents().x);
+	}
+	
 }

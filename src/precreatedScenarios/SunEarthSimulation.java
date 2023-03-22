@@ -24,9 +24,9 @@ import com.jme3.texture.Texture;
 
 import guiStuff.TopGUI;
 import main.DifferentialEquationSolvers;
-import main.SimulationMain;
 import main.Support3DOther;
 import main.TesterMethods;
+import main.runnable.SimulationMain;
 import precreatedObjects.Earth;
 import precreatedObjects.SpaceObject;
 import precreatedObjects.Sun;

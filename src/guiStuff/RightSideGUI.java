@@ -6,7 +6,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import main.SimulationMain;
+import main.runnable.SimulationMain;
 import precreatedObjects.SpaceObject;
 import shapes3D.Geometry3D;
 

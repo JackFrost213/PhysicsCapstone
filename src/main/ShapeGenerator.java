@@ -21,6 +21,7 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 
+import main.runnable.SimulationMain;
 import shapes3D.Circle;
 import shapes3D.Geometry3D;
 import shapes3D.Line;

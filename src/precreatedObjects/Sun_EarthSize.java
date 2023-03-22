@@ -13,7 +13,7 @@ import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 
-import main.SimulationMain;
+import main.runnable.SimulationMain;
 import shapes3D.Trail;
 
 public class Sun_EarthSize extends Sun{

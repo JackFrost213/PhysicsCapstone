@@ -14,9 +14,9 @@ import com.jme3.scene.Spatial;
 
 import guiStuff.TopGUI;
 import main.DifferentialEquationSolvers;
-import main.SimulationMain;
 import main.Support3DOther;
 import main.TesterMethods;
+import main.runnable.SimulationMain;
 import net.wcomohundro.jme3.math.Vector3d;
 import precreatedObjects.Earth;
 import precreatedObjects.JamesWebbSpaceTelescope;

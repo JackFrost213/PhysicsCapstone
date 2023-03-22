@@ -8,8 +8,8 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 
-import main.SimulationMain;
-import twodplots.ChaosGraph;
+import main.runnable.ChaosGraph;
+import main.runnable.SimulationMain;
 
 public class Trail extends Geometry3D {
 
