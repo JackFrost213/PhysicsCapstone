@@ -16,7 +16,6 @@ import com.jme3.texture.Texture;
 
 import main.SimulationMain;
 import main.Support3DOther;
-import shapes3D.SpaceObject;
 import shapes3D.Trail;
 
 public class Moon extends SpaceObject{
@@ -28,7 +27,11 @@ public class Moon extends SpaceObject{
 		this.setName("Moon");
 		trail = new Trail(ColorRGBA.LightGray);
 		
+		try {
 		initalizeShape();
+		}catch(Exception e) {
+			
+		}
 	}
 
 	@Override
@@ -43,7 +46,7 @@ public class Moon extends SpaceObject{
 		Texture texture = assetManager.loadTexture("Textures/Moon.jpg");
 		texture.setWrap(Texture.WrapMode.EdgeClamp);
 		
-		this.setLocalScale((float)this.radius);
+		this.setLocalScale((float)this.getRadius());
 		this.setShadowMode(ShadowMode.CastAndReceive);
 		this.getMaterial().setTexture("DiffuseMap", texture);
 		this.getMaterial().setBoolean("UseMaterialColors",true);

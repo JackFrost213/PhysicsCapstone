@@ -10,6 +10,8 @@ import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+
+import net.wcomohundro.jme3.math.Vector3d;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.FXAAFilter;
@@ -20,15 +22,15 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
 import com.jme3.texture.Texture;
 
+import guiStuff.TopGUI;
 import main.DifferentialEquationSolvers;
 import main.SimulationMain;
 import main.Support3DOther;
 import main.TesterMethods;
 import precreatedObjects.Earth;
+import precreatedObjects.SpaceObject;
 import precreatedObjects.Sun;
 import shapes3D.Geometry3D;
-import shapes3D.Simulation;
-import shapes3D.SpaceObject;
 
 public class SunEarthSimulation extends Simulation {
 
@@ -58,11 +60,11 @@ public class SunEarthSimulation extends Simulation {
 
 		SpaceObject earth = new Earth();
 		earth.attachToNode(scalableNode);
-		ArrayList<Vector3f> temp = new ArrayList<Vector3f>();
-		//temp.add(new Vector3f((float)(149192626.18f),0,(float)(149192626.18f)));
-		temp.add(new Vector3f(0,0,0));
-		temp.add(new Vector3f(0, 0, (float) 29.7877));
-		//temp.add(new Vector3f(30f,0,0));
+		ArrayList<Vector3d> temp = new ArrayList<Vector3d>();
+		//temp.add(new Vector3d((float)(149192626.18f),0,(float)(149192626.18f)));
+		temp.add(new Vector3d(0,0,0));
+		temp.add(new Vector3d(0, 0, (float) 29.7877));
+		//temp.add(new Vector3d(30f,0,0));
 		earth.setInitialConditions(temp);
 		earth.setGlobalScale(new Vector3f(1f/(4000f),1f/4000f,1f/4000f));
 		earth.lockSize(true);
@@ -72,9 +74,9 @@ public class SunEarthSimulation extends Simulation {
 		sun.attachToNode(scalableNode);
 		//scalableNode.attachChild(sun.getOutline());
 		//scalableNode.attachChild(sun.getTrail());
-		temp = new ArrayList<Vector3f>();
-		temp.add(new Vector3f(147120163f, 0, 0));
-		temp.add(new Vector3f(0, 0, (float) 0));
+		temp = new ArrayList<Vector3d>();
+		temp.add(new Vector3d(147120163f, 0, 0));
+		temp.add(new Vector3d(0, 0, (float) 0));
 		sun.setInitialConditions(temp);
 		sun.setGlobalScale(new Vector3f(1f/(160000f),1f/160000f,1f/160000f));
 		sun.lockSize(true);
@@ -91,6 +93,9 @@ public class SunEarthSimulation extends Simulation {
 		
 		SimulationMain main = (SimulationMain)app;
 		main.getChaseCamera().setSpatial(earth);
+		
+		TopGUI.setSpeed(5);
+
 	}
 
 	public void generateExtraVisuals(Node scalableNode) {
@@ -120,17 +125,29 @@ public class SunEarthSimulation extends Simulation {
 	}
 
 	float timeDilation = 500000.0f; // timeDilationX the speed of the simulation
-	float timeStep = 100f; //steps through time every x seconds of real-time
+	float timeStep = 500f; //steps through time every x seconds of real-time
+	float graphUpdate = 0;
+	float timeElapsed = 0;
 	float tpfTot = 0;
-	
+
 	@Override
 	public void simpleUpdate(float tpf) {
 		tpfTot += tpf;
-
+		graphUpdate += tpf*(Math.abs(timeDilation)/5000);
+		timeElapsed += tpf*timeDilation;
+		
+		timeDilation = (float) TopGUI.getSpeed();
 		for (SpaceObject spaceObject : spaceObjects) {
 			spaceObject.update(tpf * timeDilation);
 		}
-		DifferentialEquationSolvers.eulerApproximation(spaceObjects, timeDilation * tpf, timeStep);
-		TesterMethods.compareToAnalyticalSolution(spaceObjects, tpfTot*timeDilation, tpf);
+		DifferentialEquationSolvers.rungeKuttaApproximation(spaceObjects, timeDilation * tpf, timeStep);
+		//DifferentialEquationSolvers.eulerApproximation(spaceObjects, timeDilation * tpf, timeStep);
+		TesterMethods.compareToAnalyticalSolution(spaceObjects, timeElapsed, tpf);
+		
+		if (graphUpdate >= 0.1) {
+			posGraph.update();
+			TopGUI.updateTimeElapsed(timeElapsed/86400);
+			graphUpdate = 0;
+			}
 	}
 }

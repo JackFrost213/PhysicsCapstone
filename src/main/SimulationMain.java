@@ -1,12 +1,17 @@
 package main;
 
 import item3D.Item3D;
+import precreatedObjects.SpaceObject;
+import precreatedScenarios.ChaoticSystemSimulation;
+import precreatedScenarios.ChaoticSystemSimulation2;
 import precreatedScenarios.EqualMassSimulation;
 import precreatedScenarios.FourBodyEqualMassSimulation;
+import precreatedScenarios.SunEarthJamesWebbL1Simulation;
+import precreatedScenarios.SunEarthJamesWebbL4Simulation;
+import precreatedScenarios.SunEarthJamesWebbSimulation;
 import precreatedScenarios.SunEarthSimulation;
 import precreatedScenarios.SunMoonEarthSimulation;
 import shapes3D.Geometry3D;
-import shapes3D.SpaceObject;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -23,6 +28,7 @@ import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
@@ -40,6 +46,7 @@ import guiStuff.GuiPanel;
 import guiStuff.JFrameResizable;
 import guiStuff.LeftSideGUI;
 import guiStuff.RightSideGUI;
+import guiStuff.TopGUI;
 import shapes3D.Axis;
 
 public class SimulationMain extends SimpleApplication {
@@ -71,8 +78,9 @@ public class SimulationMain extends SimpleApplication {
 	private Vector3f prevCoordinateSize;
 	private Vector3f prevNumOfSegments;
 
-	private static RightSideGUI GUI;
+	public static RightSideGUI GUI;
 	private static LeftSideGUI analyticGUI;
+	private static TopGUI topGUI;
 	private Geometry3D lockPoint;
 
 	public static float numOfSegmentsX = 0.5f;
@@ -88,10 +96,12 @@ public class SimulationMain extends SimpleApplication {
 	public static AssetManager assetManagerExternal;
 	
 	//SunMoonEarthSimulation simulation1 = new SunMoonEarthSimulation((SimpleApplication)this);
-	SunEarthSimulation simulation1 = new SunEarthSimulation((SimpleApplication)this);
+	//SunEarthSimulation simulation1 = new SunEarthSimulation((SimpleApplication)this);
+	SunEarthJamesWebbSimulation simulation1 = new SunEarthJamesWebbSimulation((SimpleApplication)this);
+	//SunEarthJamesWebbL1Simulation simulation1 = new SunEarthJamesWebbL1Simulation((SimpleApplication)this);
 	//FourBodyEqualMassSimulation simulation1 = new FourBodyEqualMassSimulation((SimpleApplication)this);
 	//EqualMassSimulation simulation1 = new EqualMassSimulation((SimpleApplication)this);
-	
+	//ChaoticSystemSimulation2 simulation1 = new ChaoticSystemSimulation2((SimpleApplication)this);
 	/*
 	 * The panel that holds the 3D objects
 	 * 
@@ -439,7 +449,9 @@ public class SimulationMain extends SimpleApplication {
 		SimulationMain app = createPanel3D();
 		app.setShowSettings(false);
 		AppSettings settings = new AppSettings(true);
-		settings.setResolution(1440, 920);
+		//settings.setResolution(1440, 920);
+		settings.setWidth(1280);
+	    settings.setHeight(720);
 		settings.setFullscreen(false);
 		settings.setVSync(true);
 		settings.setSamples(8);
@@ -450,8 +462,10 @@ public class SimulationMain extends SimpleApplication {
 		app.setPauseOnLostFocus(false);
 		app.createCanvas();
 
-		int canvasWidth = (int) (settings.getWidth() - settings.getWidth() / 5.25);
-		int canvasHeight = settings.getHeight() - settings.getHeight() / 5;
+		//int canvasWidth = (int) (settings.getWidth() - settings.getWidth() / 5.25);
+		//int canvasHeight = settings.getHeight() - settings.getHeight() / 5;
+		int canvasWidth = settings.getWidth();
+		int canvasHeight = settings.getHeight();
 		JmeCanvasContext context = (JmeCanvasContext) app.getContext();
 		context.setSystemListener(app);
 		Canvas canvas = context.getCanvas();
@@ -459,17 +473,11 @@ public class SimulationMain extends SimpleApplication {
 		canvas.setSize(dim);
 		canvas.setBackground(Color.BLACK);
 
-		JPanel test = new JPanel();
 		JFrameResizable frame = new JFrameResizable();
 		frame.setTitle("Physics Capstone Chaos Simulation");
-		frame.setLayout(null);
-		test.setLayout(null);
 		Dimension dim2 = new Dimension(canvasWidth, canvasHeight + 35);
 		frame.setPreferredSize(dim2);
-		test.setPreferredSize(dim2);
 		frame.setSize(dim2);
-		test.setBackground(Color.red);
-		test.setSize(dim2);
 
 		// JFrame frame = new JFrame("Test");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -481,11 +489,13 @@ public class SimulationMain extends SimpleApplication {
 		});
 
 		GUI = new RightSideGUI(app);
+		topGUI = new TopGUI();
 		LeftSideGUI leftSideGUI = new LeftSideGUI();
 		leftSideGUI.setSize(200,200);
 		analyticGUI = leftSideGUI;
 		TesterMethods.setAnalyticalField(analyticGUI.jTextArea1);
 		GUI.setSize(200,200);
+		topGUI.setSize(400,85);
 		//GUI.setOpaque(false);
 		//GUI.setBackground(new Color(150,150,150,100));
 		JInternalFrame testFrame = new JInternalFrame();
@@ -494,16 +504,19 @@ public class SimulationMain extends SimpleApplication {
 		frame.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
             
-            	test.setSize(frame.getSize());
-                int canvasWidth = (int) (frame.getWidth() + frame.getWidth() / 4);
-    			int canvasHeight = frame.getHeight() + frame.getHeight() / 4 - 45;
-    			Dimension dim = new Dimension(canvasWidth, canvasHeight);
-    			//canvas.setSize(dim);
+                //int canvasWidth = (int) (frame.getWidth() + frame.getWidth() / 4);
+    			//int canvasHeight = frame.getHeight() + frame.getHeight() / 4 - 45;
+    			//Dimension dim = new Dimension(canvasWidth, canvasHeight);
+    			canvas.setSize(new Dimension(frame.getWidth(), frame.getHeight()));
+    			//settings.setResolution(frame.getWidth(), frame.getHeight());
+    			//app.setSettings(settings);
+    			//app.restart();
     			//test.setSize(dim);
     			//test.setPreferredSize(dim);
     			//settings.setResolution(canvasWidth, canvasHeight);
     			//GUI.setSize(frame.getSize());
     			testFrame.setLocation(frame.getWidth() - GUI.getWidth() - 20, 0);
+    			topGUI.setLocation(frame.getWidth()/2 - topGUI.getWidth()/2,0);
     			leftSideGUIFrame.setLocation(0,frame.getHeight()/2);
             }
         });
@@ -520,8 +533,9 @@ public class SimulationMain extends SimpleApplication {
 		testFrame.setVisible(true);
 		frame.add(testFrame);
 		frame.add(leftSideGUIFrame);
-		test.add(canvas);
-		frame.add(test);
+		frame.add(topGUI);
+		frame.add(canvas);
+		frame.setLayout(null);
 		frame.pack();
 		frame.getContentPane().setBackground(Color.BLUE);
 		frame.setLocationRelativeTo(null);
@@ -573,6 +587,10 @@ public class SimulationMain extends SimpleApplication {
 
 	public ChaseCamera getChaseCamera() {
 		return camera;
+	}
+
+	public RightSideGUI getRightSideGUI() {
+		return GUI;
 	}
 
 }

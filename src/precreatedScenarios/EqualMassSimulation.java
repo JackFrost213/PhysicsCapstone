@@ -9,7 +9,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import net.wcomohundro.jme3.math.Vector3d;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.FXAAFilter;
@@ -20,16 +20,16 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
 import com.jme3.texture.Texture;
 
+import guiStuff.TopGUI;
 import main.DifferentialEquationSolvers;
 import main.SimulationMain;
 import main.ShapeGenerator;
 import main.Support3DOther;
 import main.TesterMethods;
 import precreatedObjects.Earth;
+import precreatedObjects.SpaceObject;
 import precreatedObjects.Sun_EarthSize;
 import shapes3D.Geometry3D;
-import shapes3D.Simulation;
-import shapes3D.SpaceObject;
 
 public class EqualMassSimulation extends Simulation {
 
@@ -40,46 +40,29 @@ public class EqualMassSimulation extends Simulation {
 
 	@Override
 	public void createInitialItems() {
-		AssetManager assetManager = SimulationMain.assetManagerExternal;
-		Node rootNode = this.app.getRootNode();
-		Node scalableNode = ((Node) rootNode.getChild("Scalable"));
-		ViewPort viewPort = this.app.getViewPort();
-
-		FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-		BloomFilter bloom = new BloomFilter(BloomFilter.GlowMode.Objects);
-		bloom.setBloomIntensity(1.8f);
-		bloom.setBlurScale(8);
-		fpp.addFilter(bloom);
-		// fpp.addFilter(new FXAAFilter());
-		fpp.setNumSamples(8);
-		viewPort.addProcessor(fpp);
-
+		super.createInitialItems();
 		SpaceObject earth = new Earth();
-		earth.attachToNode(scalableNode);
-		ArrayList<Vector3f> temp = new ArrayList<Vector3f>();
-		temp.add(new Vector3f(0, 0, (float) 0));
-		temp.add(new Vector3f(0, 0, 2));
+		ArrayList<Vector3d> temp = new ArrayList<Vector3d>();
+		temp.add(new Vector3d(0, 0, (float) 0));
+		temp.add(new Vector3d(0, 0, 3));
 		earth.setInitialConditions(temp);
+		spaceObjects.add(earth);
 
 		Sun_EarthSize sun = new Sun_EarthSize();
-		sun.attachLightEmissions(rootNode);
-		sun.attachToNode(scalableNode);
-		temp = new ArrayList<Vector3f>();
-		temp.add(new Vector3f(5000 * 8, 0, (float) 0));
-		temp.add(new Vector3f(0, 0, -2));
+		spaceObjects.add(sun);
+		temp = new ArrayList<Vector3d>();
+		temp.add(new Vector3d(5000 * 8, 0, (float) 0));
+		temp.add(new Vector3d(0, 0, -1));
 		sun.setInitialConditions(temp);
 
-		for (Spatial s : scalableNode.getChildren()) {
-			if (s instanceof SpaceObject) {
-				System.out.println(s.getName());
-				spaceObjects.add((SpaceObject) s);
+		if(app != null) {
+			for(SpaceObject s : spaceObjects) {
+				s.attachToNode(scalableNode);
 			}
+			SimulationMain main = (SimulationMain) app;
+			main.getChaseCamera().setSpatial(earth);
+			TopGUI.setSpeed(5000);
 		}
-
-		generateExtraVisuals(rootNode);
-
-		SimulationMain main = (SimulationMain) app;
-		main.getChaseCamera().setSpatial(earth);
 
 	}
 
@@ -112,16 +95,26 @@ public class EqualMassSimulation extends Simulation {
 	float timeDilation = 5000f; // 100X the speed of the simulation
 	float timeStep = 0.5f;// steps through time every 0.1 seconds of real-time
 	float tpfTot = 0;
+	float graphUpdate = 0;
 
 	@Override
 	public void simpleUpdate(float tpf) {
 		tpfTot += tpf;
+		graphUpdate += tpf*(timeDilation/5000);
 
+		timeDilation = (float) TopGUI.getSpeed();
 		for (SpaceObject spaceObject : spaceObjects) {
 			spaceObject.update(tpf * timeDilation);
 		}
 		DifferentialEquationSolvers.eulerApproximation(spaceObjects, timeDilation * tpf, timeStep);
 		TesterMethods.compareToAnalyticalSolution(spaceObjects, tpfTot*timeDilation, tpf);
+	
+		//System.out.println(graphUpdate);
+		if (graphUpdate >= 0.1) {
+		posGraph.update();
+		TopGUI.updateTimeElapsed(tpfTot*timeDilation/86400);
+		graphUpdate = 0;
+		}
 	}
-
+	
 }

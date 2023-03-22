@@ -26,7 +26,6 @@ import shapes3D.Geometry3D;
 import shapes3D.QuadShape;
 import shapes3D.ScalableLightControl;
 import shapes3D.Scene;
-import shapes3D.SpaceObject;
 import shapes3D.Trail;
 
 public class Sun extends SpaceObject{
@@ -46,13 +45,18 @@ public class Sun extends SpaceObject{
 		this.setOrbitalAxisRotationSpeed(-2.972E-6);
 		trail = new Trail(ColorRGBA.Red);
 		point_lights = new ArrayList<PointLight>();
+		
+		try {
 		initalizeShape();
+		}catch(Exception e) {
+			
+		}
 	}
 	
 	@Override
 	public void initalizeShape() {
 		AssetManager assetManager = SimulationMain.assetManagerExternal;
-		this.setLocalScale((float)this.radius);
+		this.setLocalScale((float)this.getRadius());
 		Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		this.setMaterial(mat);
 		this.updateModelBound();
@@ -76,7 +80,7 @@ public class Sun extends SpaceObject{
 	    geo.setName("Outline");
 	    mat2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		geo.setQueueBucket(Bucket.Transparent);
-	    geo.setLocalScale((float)(1.75*this.radius));
+	    geo.setLocalScale((float)(1.75*this.getRadius()));
 	    geo.updateModelBound();
 	    this.setOutline(geo);
 	    BillboardControl bill = new BillboardControl();
@@ -100,13 +104,13 @@ public class Sun extends SpaceObject{
 	    PointLight pointLightCenter = new PointLight();
 	    pointLightCenter.setColor(ColorRGBA.White.mult(2.8f));
 	    pointLightCenter.setRadius(10000000000000f);
-	    pointLightCenter.setPosition(this.getToScalePosition());
+	    pointLightCenter.setPosition(this.getToScalePositionFloat());
 	    pointLightCenter.setName("Lamp");
 	    point_lights.add(pointLightCenter);
 	    PointLight pointLightTop = new PointLight();
 	    pointLightTop.setColor(ColorRGBA.White.mult(2.8f));
 	    pointLightTop.setRadius(10000000000000f);
-	    pointLightTop.setPosition(this.getToScalePosition().add(new Vector3f(0,(float) this.radius,0)));
+	    pointLightTop.setPosition(this.getToScalePositionFloat().add(new Vector3f(0,(float) this.getRadius(),0)));
 	    pointLightTop.setName("Lamp");
 	    point_lights.add(pointLightTop);
 	    
@@ -124,6 +128,17 @@ public class Sun extends SpaceObject{
 			rootNode.addLight(pointLight);
 		}
 		rootNode.addLight(this.ambient);	
+	}
+	
+	@Override
+	public void attachToNode(Node node) {
+		super.attachToNode(node);
+		
+		Node root = node;
+		while(root.getParent() != null) {
+			root = root.getParent();
+		}
+		this.attachLightEmissions(root);
 	}
 	
 	public void update(float tpf) {

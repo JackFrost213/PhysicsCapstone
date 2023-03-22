@@ -9,6 +9,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 
 import main.SimulationMain;
+import twodplots.ChaosGraph;
 
 public class Trail extends Geometry3D {
 
@@ -17,10 +18,15 @@ public class Trail extends Geometry3D {
 	public Trail(ColorRGBA colorRGBA) {
 		super("PolyLine", new Line(new Vector3f[0]));
 		positions = new ArrayList<Vector3f>();
+		try {
 		Material mat = new Material(SimulationMain.assetManagerExternal, "Common/MatDefs/Misc/Unshaded.j3md");
 		mat.setColor("Color", colorRGBA);
 		mat.getAdditionalRenderState().setLineWidth(5);
 		this.setMaterial(mat);
+		}
+		catch(Exception e) {
+			
+		}
 		this.updateModelBound();
 	}
 
@@ -35,7 +41,7 @@ public class Trail extends Geometry3D {
 	}
 
 	public void addPosToTrail(Vector3f newPosition) {
-		/*if (positions.size() > 10000) {
+		/*if (positions.size() > 1000) {
 			// cull half of the points
 			System.out.println("Culled Points");
 			ArrayList<Vector3f> positionsCulled = new ArrayList<Vector3f>();
@@ -45,7 +51,7 @@ public class Trail extends Geometry3D {
 			positions = positionsCulled;
 		}*/
 		//TODO Fix this and improve it so this scales to any simulation scale
-		if (positions.size() == 0 || newPosition.distance(positions.get(positions.size() - 1)) > 100000) {
+		if (!ChaosGraph.generatingChaos && (positions.size() == 0 || newPosition.distance(positions.get(positions.size() - 1)) > SimulationMain.deltaX/5)) {
 			positions.add(newPosition);
 			Vector3f[] temp = new Vector3f[positions.size()];
 			Vector3f[] pos = positions.toArray(temp);

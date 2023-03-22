@@ -14,7 +14,6 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 
 import main.SimulationMain;
-import shapes3D.SpaceObject;
 import shapes3D.Trail;
 
 public class Sun_EarthSize extends Sun{
@@ -24,7 +23,12 @@ public class Sun_EarthSize extends Sun{
 		this.mass = 5.97219E24; //kg
 		this.radius = 6371.07103; //km
 		this.setName("Sun_EarthSize");
-		this.setLocalScale((float)this.radius);
-		this.getOutline().setLocalScale((float)(1.75*this.radius));
+		this.setLocalScale((float)this.getRadius());
+		try {
+		this.getOutline().setLocalScale((float)(1.75*this.getRadius()));
+		}
+		catch(Exception e) {
+			
+		}
 	}
 }

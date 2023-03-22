@@ -9,7 +9,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import net.wcomohundro.jme3.math.Vector3d;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.FXAAFilter;
@@ -26,10 +26,9 @@ import main.ShapeGenerator;
 import main.Support3DOther;
 import main.TesterMethods;
 import precreatedObjects.Earth;
+import precreatedObjects.SpaceObject;
 import precreatedObjects.Sun_EarthSize;
 import shapes3D.Geometry3D;
-import shapes3D.Simulation;
-import shapes3D.SpaceObject;
 
 public class FourBodyEqualMassSimulation extends Simulation {
 
@@ -56,31 +55,31 @@ public class FourBodyEqualMassSimulation extends Simulation {
 
 		SpaceObject earth = new Earth();
 		earth.attachToNode(scalableNode);
-		ArrayList<Vector3f> temp = new ArrayList<Vector3f>();
-		temp.add(new Vector3f(0, 0, (float) 0));
-		temp.add(new Vector3f(0, 0, -3));
+		ArrayList<Vector3d> temp = new ArrayList<Vector3d>();
+		temp.add(new Vector3d(0, 0, (float) 0));
+		temp.add(new Vector3d(0, 0, -3));
 		earth.setInitialConditions(temp);
 		
 		SpaceObject earth2 = new Earth();
 		earth2.attachToNode(scalableNode);
-		temp = new ArrayList<Vector3f>();
-		temp.add(new Vector3f(5000 * distScale, 0, (float) 5000 * distScale));
-		temp.add(new Vector3f(0, 0, 3));
+		temp = new ArrayList<Vector3d>();
+		temp.add(new Vector3d(5000 * distScale, 0, (float) 5000 * distScale));
+		temp.add(new Vector3d(0, 0, 3));
 		earth2.setInitialConditions(temp);
 
 		SpaceObject earth3 = new Earth();
 		earth3.attachToNode(scalableNode);
-		temp = new ArrayList<Vector3f>();
-		temp.add(new Vector3f(0, 0, (float) 5000 * distScale));
-		temp.add(new Vector3f(-3, 0, 0));
+		temp = new ArrayList<Vector3d>();
+		temp.add(new Vector3d(0, 0, (float) 5000 * distScale));
+		temp.add(new Vector3d(-3, 0, 0));
 		earth3.setInitialConditions(temp);
 		
 		Sun_EarthSize sun = new Sun_EarthSize();
 		sun.attachLightEmissions(rootNode);
 		sun.attachToNode(scalableNode);
-		temp = new ArrayList<Vector3f>();
-		temp.add(new Vector3f(5000 * distScale, 0, (float) 0));
-		temp.add(new Vector3f(3, 0, 0));
+		temp = new ArrayList<Vector3d>();
+		temp.add(new Vector3d(5000 * distScale, 0, (float) 0));
+		temp.add(new Vector3d(3, 0, 0));
 		sun.setInitialConditions(temp);
 
 		for (Spatial s : scalableNode.getChildren()) {
@@ -143,14 +142,14 @@ public class FourBodyEqualMassSimulation extends Simulation {
 		}*/
 		
 		if(tpfTimer >= 192090.6) {
-			spaceObjects.get(0).setToScalePosition(new Vector3f(0, 0, (float) 0));
-			spaceObjects.get(0).setVelocity(new Vector3f(0, 0, -3));
-			spaceObjects.get(1).setToScalePosition(new Vector3f(5000*distScale, 0, (float) 5000*distScale));
-			spaceObjects.get(1).setVelocity(new Vector3f(0, 0, 3));
-			spaceObjects.get(2).setToScalePosition(new Vector3f(0, 0, (float) 5000*distScale));
-			spaceObjects.get(2).setVelocity(new Vector3f(-3, 0, 0));
-			spaceObjects.get(3).setToScalePosition(new Vector3f(5000*distScale, 0, (float) 0));
-			spaceObjects.get(3).setVelocity(new Vector3f(3, 0, 0));
+			spaceObjects.get(0).setToScalePosition(new Vector3d(0, 0, (float) 0));
+			spaceObjects.get(0).setVelocity(new Vector3d(0, 0, -3));
+			spaceObjects.get(1).setToScalePosition(new Vector3d(5000*distScale, 0, (float) 5000*distScale));
+			spaceObjects.get(1).setVelocity(new Vector3d(0, 0, 3));
+			spaceObjects.get(2).setToScalePosition(new Vector3d(0, 0, (float) 5000*distScale));
+			spaceObjects.get(2).setVelocity(new Vector3d(-3, 0, 0));
+			spaceObjects.get(3).setToScalePosition(new Vector3d(5000*distScale, 0, (float) 0));
+			spaceObjects.get(3).setVelocity(new Vector3d(3, 0, 0));
 			tpfTimer = 0;
 		}
 		

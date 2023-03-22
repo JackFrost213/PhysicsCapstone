@@ -1,13 +1,13 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import com.jme3.math.Vector3f;
-
-import shapes3D.SpaceObject;
+import net.wcomohundro.jme3.math.Vector3d;
+import precreatedObjects.SpaceObject;
 
 public class TesterMethods {
 	
@@ -21,68 +21,99 @@ public class TesterMethods {
 	}
 	
 	
-	static float updateSpeed = 0.4f;
-	static float tpfTot = 0;
-	public static void compareToAnalyticalSolution(ArrayList<SpaceObject> spaceObjects, double totalTimeElapsed, float tpf) {
+	static double updateSpeed = 0.4f;
+	static double tpfTot = 0;
+	
+	private static HashMap<String,Double> realTesting = new HashMap<String,Double>();
+	private static boolean firstTrigger = false, secondTrigger = false;
+	public static void compareToEarthSunMoonSolution(ArrayList<SpaceObject> spaceObjects, double totalTimeElapsed, double tpf) {
+		SpaceObject earth = spaceObjects.get(0);
+		SpaceObject moon = spaceObjects.get(1);
+		SpaceObject sun = spaceObjects.get(2);
+		
+		if(totalTimeElapsed/(86400*365.25/2) >= 1 && !firstTrigger) {
+			realTesting.put(earth.getName() + "0", 100*Math.abs(152093249.865 - earth.getToScalePosition().subtract(sun.getToScalePosition()).length())/152093249.865);
+			realTesting.put(sun.getName() + "0", (double) (100*Math.abs(sun.getToScalePosition().length() - 147120163)/147120163));
+			realTesting.put(moon.getName() + "0", (double) (100*Math.abs(moon.getToScalePosition().subtract(earth.getToScalePosition()).length() - 392973.3161339043)/392973.3161339043));
+			firstTrigger = true;
+			//System.out.println(moon.getToScalePosition().subtract(earth.getToScalePosition()).length());
+		}
+		
+		if(totalTimeElapsed/(86400*365.25) >= 1 && !secondTrigger) {
+			realTesting.put(earth.getName() + "1", (double) (100*Math.abs(147120163 - earth.getToScalePosition().subtract(sun.getToScalePosition()).length())/147120163));
+			realTesting.put(sun.getName() + "1", (double) (100*Math.abs(sun.getToScalePosition().length() - 147120163)/147120163));
+			realTesting.put(moon.getName() + "1", (double) (100*Math.abs(moon.getToScalePosition().subtract(earth.getToScalePosition()).length() - 392719.5291859591)/392719.5291859591));
+			secondTrigger = true;
+			//System.out.println(moon.getToScalePosition().subtract(earth.getToScalePosition()).length());
+		}
+		
+		tpfTot += tpf;
+		if(tpfTot > updateSpeed && analyticalField != null && totalTimeElapsed/(86400*365.25) < 1) {
+			String text = "";
+			text += "Results for Real Data Tester Method: \n";
+			text += "Awaiting One Orbital Period for Data...\n";
+			text += "Simulation Time Elapsed: " + totalTimeElapsed/86400 + " days\n";
+			analyticalField.setText(text);
+			tpfTot = 0;
+		}
+		if(tpfTot > updateSpeed && analyticalField != null && totalTimeElapsed/(86400*365.25) >= 1) {
+			String text = "";
+			//text += "Two Body Analytical Solution for: " + obj1.getName() + " and " + obj2.getName() + " \n\n";
+			double earthError = realTesting.get(earth.getName() + "0") + realTesting.get(earth.getName() + "1");
+			double sunError = realTesting.get(sun.getName() + "0") + realTesting.get(sun.getName() + "1");
+			double moonError = realTesting.get(moon.getName() + "0") + realTesting.get(moon.getName() + "1");
+			text += "Results for Real Data Tester Method: \n";
+			text += "Percent Error For " + earth.getName() + ": " + earthError + "%\n";
+			text += "Percent Error For " + moon.getName() + ": " + moonError/10.0 + "%\n";
+			text += "Percent Error For " + sun.getName() + ": " + sunError + "%\n";
+			text += "Simulation Time Elapsed: " + totalTimeElapsed/3600 + " hours\n";
+			analyticalField.setText(text);
+			tpfTot = 0;
+		}
+	}
+
+	public static void compareToAnalyticalSolution(ArrayList<SpaceObject> spaceObjects, double totalTimeElapsed, double tpf) {
 		if (spaceObjects.size() != 2)
 			throw new RuntimeException("Cannot analytically solve more than 2 body system");
 		
 		SpaceObject obj1 = spaceObjects.get(0);
 		SpaceObject obj2 = spaceObjects.get(1);
-		Vector3f initialObj1Pos = obj1.getInitialConditions().get(0); //in km
-		Vector3f initialObj1Vel = obj1.getInitialConditions().get(1);
-		Vector3f initialObj2Pos = obj2.getInitialConditions().get(0);
-		Vector3f initialObj2Vel = obj2.getInitialConditions().get(1);
-		Vector3f obj2FromObj1Initial = initialObj2Pos.subtract(initialObj1Pos);
+		Vector3d initialObj1Pos = obj1.getInitialConditions().get(0); //in km
+		Vector3d initialObj1Vel = obj1.getInitialConditions().get(1);
+		Vector3d initialObj2Pos = obj2.getInitialConditions().get(0);
+		Vector3d initialObj2Vel = obj2.getInitialConditions().get(1);
+		Vector3d obj2FromObj1Initial = initialObj2Pos.subtract(initialObj1Pos);
 		double reducedMass = 1/((1/obj1.getMass()) + (1/obj2.getMass()));
-		Vector3f initialCenterOfMassPosition = initialObj1Pos.mult((float) obj1.getMass()).add(initialObj2Pos.mult((float)obj2.getMass()));
-		initialCenterOfMassPosition = initialCenterOfMassPosition.divide((float)(obj1.getMass()+obj2.getMass()));
-		Vector3f initialCenterOfMassVelocity = initialObj1Vel.mult((float)obj1.getMass());
-		initialCenterOfMassVelocity = initialCenterOfMassVelocity.add(initialObj2Vel.mult((float)obj2.getMass()));
-		initialCenterOfMassVelocity = initialCenterOfMassVelocity.divide((float)(obj1.getMass()+obj2.getMass()));
-		Vector3f axisOfRotation = obj2FromObj1Initial.normalize();
-		Vector3f numericalObj2FromObj1 = obj2.getToScalePosition().subtract(obj1.getToScalePosition());
-		Vector3f currentNormalizedObj2FromObj1 = numericalObj2FromObj1.normalize();
+		Vector3d initialCenterOfMassPosition = initialObj1Pos.mult((double) obj1.getMass()).add(initialObj2Pos.mult((double)obj2.getMass()));
+		initialCenterOfMassPosition = initialCenterOfMassPosition.divide((double)(obj1.getMass()+obj2.getMass()));
+		Vector3d initialCenterOfMassVelocity = initialObj1Vel.mult((double)obj1.getMass());
+		initialCenterOfMassVelocity = initialCenterOfMassVelocity.add(initialObj2Vel.mult((double)obj2.getMass()));
+		initialCenterOfMassVelocity = initialCenterOfMassVelocity.divide((double)(obj1.getMass()+obj2.getMass()));
+		Vector3d axisOfRotation = obj2FromObj1Initial.normalize();
+		Vector3d numericalObj2FromObj1 = obj2.getToScalePosition().subtract(obj1.getToScalePosition());
+		Vector3d currentNormalizedObj2FromObj1 = numericalObj2FromObj1.normalize();
 		double theta = currentNormalizedObj2FromObj1.angleBetween(axisOfRotation);
 		//double theta = Math.acos((currentNormalizedObj2FromObj1.dot(axisOfRotation)));
 
-		Vector3f rHatInitial = axisOfRotation;
+		Vector3d rHatInitial = axisOfRotation;
 		double initialDistance = obj2FromObj1Initial.length();
-		Vector3f r1Initial = initialObj1Pos.subtract(initialCenterOfMassPosition);
-		Vector3f r2Initial = initialObj2Pos.subtract(initialCenterOfMassPosition);
-		Vector3f r1DotInitial = initialObj1Vel.subtract(initialCenterOfMassVelocity);
-		Vector3f r2DotInitial = initialObj2Vel.subtract(initialCenterOfMassVelocity);
-		Vector3f Lc = r1Initial.cross(r1DotInitial.mult((float) obj1.getMass())).add(r2Initial.cross(r2DotInitial).mult((float)obj2.getMass()));
-		Vector3f LcNormalized = Lc.divide((float)Lc.length());
-		Vector3f thetaHatInitial = LcNormalized.cross(rHatInitial);
-		Vector3f rHatAtPIOver2 = rHatInitial.mult((float)Math.cos(Math.PI/2)).add(thetaHatInitial.mult((float)Math.sin(Math.PI/2)));
-		Vector3f planeNormal = axisOfRotation.cross(rHatAtPIOver2).normalize();
-		Vector3f currentNormal = currentNormalizedObj2FromObj1.cross(axisOfRotation).normalize();
+		Vector3d r1Initial = initialObj1Pos.subtract(initialCenterOfMassPosition);
+		Vector3d r2Initial = initialObj2Pos.subtract(initialCenterOfMassPosition);
+		Vector3d r1DotInitial = initialObj1Vel.subtract(initialCenterOfMassVelocity);
+		Vector3d r2DotInitial = initialObj2Vel.subtract(initialCenterOfMassVelocity);
+		Vector3d Lc = r1Initial.cross(r1DotInitial.mult((double) obj1.getMass())).add(r2Initial.cross(r2DotInitial).mult((double)obj2.getMass()));
+		Vector3d LcNormalized = Lc.divide((double)Lc.length());
+		Vector3d thetaHatInitial = LcNormalized.cross(rHatInitial);
+		Vector3d rHatAtPIOver2 = rHatInitial.mult((double)Math.cos(Math.PI/2)).add(thetaHatInitial.mult((double)Math.sin(Math.PI/2)));
+		Vector3d planeNormal = axisOfRotation.cross(rHatAtPIOver2).normalize();
+		Vector3d currentNormal = currentNormalizedObj2FromObj1.cross(axisOfRotation).normalize();
 		double sign = planeNormal.dot(currentNormal);
 		theta = sign < 0 ? theta : -theta;
-		Vector3f rHatAtTheta = rHatInitial.mult((float)Math.cos(theta)).add(thetaHatInitial.mult((float)Math.sin(theta)));
+		Vector3d rHatAtTheta = rHatInitial.mult((double)Math.cos(theta)).add(thetaHatInitial.mult((double)Math.sin(theta)));
 		
-		Vector3f rDotInitial = initialObj2Vel.subtract(initialObj1Vel);
+		Vector3d rDotInitial = initialObj2Vel.subtract(initialObj1Vel);
 		double vRInitial = rDotInitial.dot(rHatInitial);
-		
-		/*System.out.println("Lc: " + Lc);
-		System.out.println("LcNorm: " + LcNormalized);
-		System.out.println("rHatInitial: " + rHatInitial);
-		System.out.println("Initial Obj1 Vel: " + initialObj1Vel);
-		System.out.println("Initial COM Vel: " + initialCenterOfMassVelocity);
-		System.out.println("r1 initial: " + r1Initial);
-		System.out.println("r1Dot initial: " + r1DotInitial);
-		System.out.println("r1 cross r1dot: " + r1Initial.cross(r1DotInitial.mult((float) obj1.getMass())));
-		System.out.println("rHatInitial: " + rHatInitial);
-		*/
-		//System.out.println("thetaHatInitial: " + thetaHatInitial);
-		//System.out.println("rDotInitial: " + rDotInitial);
 		double vThetaInitial = rDotInitial.dot(thetaHatInitial);
-		
-		//System.out.println("Reduced Mass: " + reducedMass);
-		//System.out.println("Initial Distance: " + initialDistance);
-		//System.out.println("VThetaInitial: " + vThetaInitial);
-		//double K = (gravitationalConstant*reducedMass)/Math.pow(vThetaInitial*initialDistance*1000, 2);
 		double K = 1/(Math.pow(Lc.length()*Math.pow(10, 6), 2)/(gravitationalConstant*obj1.getMass()*obj2.getMass()*reducedMass));
 		//System.out.println("K: " + K);
 		double A = 1/(initialDistance*1000) - K;
@@ -90,28 +121,14 @@ public class TesterMethods {
 		double B = -vRInitial/(vThetaInitial*initialDistance*1000);
 		double C = Math.sqrt(Math.pow(A, 2) + Math.pow(B, 2));
 		double analyticalDistance = (1/K)/(1-(C/K)*Math.cos(theta));
-		Vector3f positionOfObj2 = initialCenterOfMassPosition.add(initialCenterOfMassVelocity.mult((float) totalTimeElapsed));
-		positionOfObj2 = positionOfObj2.add(rHatAtTheta.mult((float)(analyticalDistance/1000)).mult((float)(obj1.getMass()/(obj1.getMass()+obj2.getMass()))));
+		Vector3d positionOfObj2 = initialCenterOfMassPosition.add(initialCenterOfMassVelocity.mult((double) totalTimeElapsed));
+		positionOfObj2 = positionOfObj2.add(rHatAtTheta.mult((double)(analyticalDistance/1000)).mult((double)(obj1.getMass()/(obj1.getMass()+obj2.getMass()))));
 		
-		Vector3f positionOfObj1 = initialCenterOfMassPosition.add(initialCenterOfMassVelocity.mult((float) totalTimeElapsed));
-		positionOfObj1 = positionOfObj1.subtract(rHatAtTheta.mult((float)(analyticalDistance/1000)).mult((float)(obj2.getMass()/(obj1.getMass()+obj2.getMass()))));
-		
-		//System.out.println("Angular Momentum: " + Lc.length()*Math.pow(10,6));
-		//System.out.println("C Value: " + (1/K));
-		//System.out.println("Little C Value: " + littleC);
-		//System.out.println("Eccentricity: " + (C/K));
-		//double distance_of_1_to_2 = c/(1+ecc_temp*Math.cos(theta));
-		//System.out.println("Analytical Distance: " + analyticalDistance);
+		Vector3d positionOfObj1 = initialCenterOfMassPosition.add(initialCenterOfMassVelocity.mult((double) totalTimeElapsed));
+		positionOfObj1 = positionOfObj1.subtract(rHatAtTheta.mult((double)(analyticalDistance/1000)).mult((double)(obj2.getMass()/(obj1.getMass()+obj2.getMass()))));
 		double numericalDistance = obj2.getToScalePosition().subtract(obj1.getToScalePosition()).length()*1000;
-		Vector3f currentCenterOfMassPos = obj1.getToScalePosition().mult((float) obj1.getMass()).add(obj2.getToScalePosition().mult((float)obj2.getMass()));
-		currentCenterOfMassPos = currentCenterOfMassPos.divide((float)(obj1.getMass()+obj2.getMass()));	
-		//System.out.println("Theoretical Distance:"+ numericalDistance);
-		/*System.out.println("Numerical Position of Obj1: " + obj1.getToScalePosition());
-		System.out.println("Analytical Position of Obj1: " + positionOfObj1);
-		System.out.println("Numerical Position of Obj2: " + obj2.getToScalePosition());
-		System.out.println("Analytical Position of Obj2: " + positionOfObj2);
-		System.out.println("Percent Error For Object 1: " + (Math.abs(analyticalDistance-numericalDistance)/analyticalDistance)*100 + "%");
-		*/
+		Vector3d currentCenterOfMassPos = obj1.getToScalePosition().mult((double) obj1.getMass()).add(obj2.getToScalePosition().mult((double)obj2.getMass()));
+		currentCenterOfMassPos = currentCenterOfMassPos.divide((double)(obj1.getMass()+obj2.getMass()));	
 		tpfTot += tpf;
 		if(tpfTot > updateSpeed && analyticalField != null) {
 			String text = "";
@@ -128,7 +145,7 @@ public class TesterMethods {
 			analyticalField.setText(text);
 			tpfTot = 0;
 		}
-		//System.out.println("Center of Mass Position: " + initialCenterOfMassPosition.add(initialCenterOfMassVelocity.mult((float) totalTimeElapsed)));
+		//System.out.println("Center of Mass Position: " + initialCenterOfMassPosition.add(initialCenterOfMassVelocity.mult((double) totalTimeElapsed)));
 
 	}
 	
@@ -138,27 +155,27 @@ public class TesterMethods {
 		
 		SpaceObject obj1 = spaceObjects.get(0);
 		SpaceObject obj2 = spaceObjects.get(1);
-		Vector3f position1 = obj1.getInitialConditions().get(0); //in km
-		Vector3f position2 = obj2.getInitialConditions().get(0);
-		Vector3f centerOfMassPosition = position1.mult((float) obj1.getMass()).add(position2.mult((float)obj2.getMass()));
-		centerOfMassPosition = centerOfMassPosition.divide((float)(obj1.getMass()+obj2.getMass()));
+		Vector3d position1 = obj1.getInitialConditions().get(0); //in km
+		Vector3d position2 = obj2.getInitialConditions().get(0);
+		Vector3d centerOfMassPosition = position1.mult((double) obj1.getMass()).add(position2.mult((double)obj2.getMass()));
+		centerOfMassPosition = centerOfMassPosition.divide((double)(obj1.getMass()+obj2.getMass()));
 		centerOfMassPosition = centerOfMassPosition.mult(1000);
-		Vector3f centerOfMassVelocity = obj1.getInitialConditions().get(1).mult((float) obj1.getMass());
-		centerOfMassVelocity = centerOfMassVelocity.add(obj2.getInitialConditions().get(1).mult((float) obj2.getMass()));
-		centerOfMassVelocity = centerOfMassVelocity.divide((float)(obj1.getMass()+obj2.getMass()));
+		Vector3d centerOfMassVelocity = obj1.getInitialConditions().get(1).mult((double) obj1.getMass());
+		centerOfMassVelocity = centerOfMassVelocity.add(obj2.getInitialConditions().get(1).mult((double) obj2.getMass()));
+		centerOfMassVelocity = centerOfMassVelocity.divide((double)(obj1.getMass()+obj2.getMass()));
 		centerOfMassVelocity = centerOfMassVelocity.mult(1000);
 		
-		Vector3f u1_initial = obj1.getInitialConditions().get(1).mult(1000).subtract(centerOfMassVelocity);
-		Vector3f u2_initial = obj2.getInitialConditions().get(1).mult(1000).subtract(centerOfMassVelocity);
-		Vector3f new_x_axis = (position2
+		Vector3d u1_initial = obj1.getInitialConditions().get(1).mult(1000).subtract(centerOfMassVelocity);
+		Vector3d u2_initial = obj2.getInitialConditions().get(1).mult(1000).subtract(centerOfMassVelocity);
+		Vector3d new_x_axis = (position2
 				.subtract(position1)).normalize();
-		Vector3f current_axis = (obj2.getToScalePosition()
+		Vector3d current_axis = (obj2.getToScalePosition()
 				.subtract(obj1.getToScalePosition())).normalize();
-		float distance = obj2.getInitialConditions().get(0).subtract(obj1.getInitialConditions().get(0)).length();
+		double distance = obj2.getInitialConditions().get(0).subtract(obj1.getInitialConditions().get(0)).length();
 		distance = distance*1000;
 		double alpha = u1_initial.angleBetween(new_x_axis);
 		double u_not = u1_initial.length();
-		Vector3f r_not_vec = centerOfMassPosition.subtract(position1.mult(1000));
+		Vector3d r_not_vec = centerOfMassPosition.subtract(position1.mult(1000));
 		double r_not = r_not_vec.length();
 		double L = r_not*u_not*Math.sin(alpha);
 		double K = gravitationalConstant*Math.pow(obj1.getMass(), 2)*obj2.getMass();
@@ -180,9 +197,9 @@ public class TesterMethods {
 		double distance_of_1_to_2 = c/(1+ecc_temp*Math.cos(theta));
 		double distance_Try_2 = Math.pow(L, 2)*(obj1.getMass()+obj2.getMass());
 		distance_Try_2 = distance_Try_2/(K*obj2.getMass()*(1+0*Math.cos(theta)));
-		Vector3f positionOfObj1 = centerOfMassVelocity.mult((float) totalTimeElapsed);
+		Vector3d positionOfObj1 = centerOfMassVelocity.mult((double) totalTimeElapsed);
 		double obj1Scalar = obj2.getMass()/(obj1.getMass()+obj2.getMass());
-		Vector3f r_vector = new Vector3f((float)(distance_of_1_to_2*Math.cos(theta)),0f,(float)(distance_of_1_to_2*Math.sin(theta))).mult((float) obj1Scalar);
+		Vector3d r_vector = new Vector3d((double)(distance_of_1_to_2*Math.cos(theta)),0f,(double)(distance_of_1_to_2*Math.sin(theta))).mult((double) obj1Scalar);
 		
 		positionOfObj1 = positionOfObj1.add(obj2.getInitialConditions().get(0).mult(1000).subtract(r_vector));
 		//positionOfObj1 = positionOfObj1.add(r_vector);
@@ -205,14 +222,14 @@ public class TesterMethods {
 		System.out.println("Theta: " + theta);
 		*/
 		
-		Vector3f centerOfMassPositionCur = obj1.getToScalePosition().mult((float) obj1.getMass()).add(obj2.getToScalePosition().mult((float)obj2.getMass()));
-		centerOfMassPositionCur = centerOfMassPosition.divide((float)(obj1.getMass()+obj2.getMass()));
+		Vector3d centerOfMassPositionCur = obj1.getToScalePosition().mult((double) obj1.getMass()).add(obj2.getToScalePosition().mult((double)obj2.getMass()));
+		centerOfMassPositionCur = centerOfMassPosition.divide((double)(obj1.getMass()+obj2.getMass()));
 		centerOfMassPositionCur = centerOfMassPosition;
 		System.out.println("Analytical Distance:"+distance_of_1_to_2);
 		System.out.println("Theoertical Distance From m1 to com: " + obj1.getToScalePosition().subtract(centerOfMassPositionCur).length());
 		System.out.println("Theoretical Distance:"+ numericalDistance);
 		//System.out.println("Analytical 2 Distance: " + distance_Try_2);
-		System.out.println("Center of Mass Position: " + centerOfMassPosition.add(centerOfMassVelocity.mult((float) totalTimeElapsed)));
+		System.out.println("Center of Mass Position: " + centerOfMassPosition.add(centerOfMassVelocity.mult((double) totalTimeElapsed)));
 		System.out.println("Percent Error: " + (Math.abs(distance_of_1_to_2-numericalDistance)/distance_of_1_to_2)*100 + "%");
 		
 		

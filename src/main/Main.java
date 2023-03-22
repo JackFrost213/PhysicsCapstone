@@ -25,8 +25,8 @@ import com.jme3.system.JmeCanvasContext;
 
 import guiStuff.RightSideGUI;
 import precreatedObjects.Earth;
+import precreatedObjects.SpaceObject;
 import shapes3D.Geometry3D;
-import shapes3D.SpaceObject;
 
 public class Main extends SimpleApplication{
 	public static void main(String[] args)
@@ -38,10 +38,19 @@ public class Main extends SimpleApplication{
 	    _frame.setVisible(true);
 	    
 	    AppSettings settings = new AppSettings(true);
-	    settings.setWidth(1280);
+	    app.setShowSettings(false);
+		//settings.setResolution(1440, 920);
+		settings.setWidth(1280);
 	    settings.setHeight(720);
 	    settings.setUseInput(false);
-	    app.setSettings(settings);
+		settings.setFullscreen(false);
+		settings.setVSync(true);
+		settings.setSamples(8);
+		//settings.setRenderer(AppSettings.LWJGL_OPENGL45);
+		settings.setGammaCorrection(true);
+		settings.setTitle("Physics Capstone Chaos Simulation");
+		app.setSettings(settings);
+		app.setPauseOnLostFocus(false);
 	    
 	    _frame.setSize(new Dimension(settings.getWidth(), settings.getHeight()));
 	    _frame.setResizable(true);
@@ -52,10 +61,7 @@ public class Main extends SimpleApplication{
 	    _canvasCtx.setSystemListener(app);
 	    Canvas _canvas = _canvasCtx.getCanvas();
 	    _canvas.setSize(new Dimension(settings.getWidth() + settings.getWidth() / 4, settings.getHeight() + settings.getHeight()/4));
-
-	    JPanel temp = new JPanel();
-	    temp.setSize(new Dimension(settings.getWidth() + settings.getWidth() / 4, settings.getHeight() + settings.getHeight()/4));
-	
+	    _frame.setLayout(null);
 	    //_frame.add(_canvas);
 	    
 		//GUI.setOpaque(false);
@@ -68,19 +74,16 @@ public class Main extends SimpleApplication{
 		testFrame.setResizable(true);
 		testFrame.setVisible(true);
 	    
-		_frame.add(testFrame);
-		 temp.add(_canvas);
-		    _frame.setLayout(null);
-		    _frame.add(temp);
+		_frame.add(_canvas);
 	    _frame.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
             	
-                int canvasWidth2 = (int) (_frame.getWidth() + _frame.getWidth() / 4);
-    			int canvasHeight2 = _frame.getHeight() + _frame.getHeight() / 4;
+               // int canvasWidth2 = (int) (_frame.getWidth() + _frame.getWidth() / 4);
+    			//int canvasHeight2 = _frame.getHeight() + _frame.getHeight() / 4;
+            	int canvasWidth2 = _frame.getWidth();
+            	int canvasHeight2 = _frame.getHeight();
     			Dimension dim3 = new Dimension(canvasWidth2, canvasHeight2);
     			_canvas.setSize(dim3);
-    			temp.setSize(dim3);
-    			testFrame.setLocation(_frame.getWidth() - testFrame.getWidth() - 20, 0);
             }
         });
 	    _frame.pack();

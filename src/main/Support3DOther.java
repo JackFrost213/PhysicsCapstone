@@ -14,7 +14,6 @@ import com.jme3.math.Quaternion;
 import shapes3D.Geometry3D;
 import shapes3D.Line;
 import shapes3D.QuadShape;
-import shapes3D.SpaceObject;
 import shapes3D.Triangle;
 
 import com.jme3.math.Vector3f;
@@ -27,6 +26,8 @@ import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
+
+import precreatedObjects.SpaceObject;
 
 public class Support3DOther {
 

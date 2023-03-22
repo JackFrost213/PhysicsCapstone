@@ -7,8 +7,8 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import main.SimulationMain;
+import precreatedObjects.SpaceObject;
 import shapes3D.Geometry3D;
-import shapes3D.SpaceObject;
 
 public class RightSideGUI extends javax.swing.JPanel {
 
@@ -368,6 +368,15 @@ public class RightSideGUI extends javax.swing.JPanel {
 		}
 	}
 
+	public void setFocusObject(Geometry3D spaceObj) {
+		for(int x = 0; x < choice1.getItemCount(); x++) {
+				if(choice1.getItem(x).equals(spaceObj.getName())) {
+					choice1.select(x);
+				}
+		}
+		sim.getChaseCamera().setSpatial(spaceObj);
+	}
+	
 	private void scaleYActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 	}

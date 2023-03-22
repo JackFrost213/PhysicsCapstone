@@ -17,7 +17,6 @@ import com.jme3.texture.Texture;
 import main.SimulationMain;
 import main.Support3DOther;
 import shapes3D.Geometry3D;
-import shapes3D.SpaceObject;
 import shapes3D.Trail;
 
 public class Earth extends SpaceObject{
@@ -41,7 +40,11 @@ public class Earth extends SpaceObject{
 		//this.rotate(rotation4);
 		trail = new Trail(ColorRGBA.Blue);
 		
+		try {
 		initalizeShape();
+		}catch(Exception e) {
+			
+		}
 	}
 
 	@Override
@@ -56,7 +59,7 @@ public class Earth extends SpaceObject{
 		Texture texture = assetManager.loadTexture("Textures/Earth8kDay.jpg");
 		texture.setWrap(Texture.WrapMode.EdgeClamp);
 		
-		this.setLocalScale((float)this.radius);
+		this.setLocalScale((float)this.getRadius());
 		this.setShadowMode(ShadowMode.CastAndReceive);
 		this.getMaterial().setTexture("DiffuseMap", texture);
 		this.getMaterial().setTexture("NormalMap", assetManager.loadTexture("Textures/8k_earth_normal_map.png"));
@@ -87,7 +90,7 @@ public class Earth extends SpaceObject{
 		lightOfEarth.setShadowMode(ShadowMode.Off);
 		lightOfEarth.setQueueBucket(Bucket.Transparent);
 		lightOfEarth.setMaterial(mat3);
-		lightOfEarth.setLocalScale((float)(this.radius));
+		lightOfEarth.setLocalScale((float)(this.getRadius()));
 		lightOfEarth.setInvertedLighting(true);
 		this.setOutline(lightOfEarth);
 		
@@ -95,7 +98,7 @@ public class Earth extends SpaceObject{
 		sphereOutline.setName("Outline");
 		Material mat2 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 		sphereOutline.setMaterial(mat2);
-		sphereOutline.setLocalScale((float)(this.radius+0.01*this.radius));
+		sphereOutline.setLocalScale((float)(this.getRadius()+0.01*this.getRadius()));
 		mat2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		((Sphere) sphereOutline.getMesh()).setTextureMode(Sphere.TextureMode.Projected);
 		mat2.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Earth8KClouds.jpg"));
@@ -112,7 +115,7 @@ public class Earth extends SpaceObject{
 		Material mat4 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 		ColorRGBA blue = ColorRGBA.Blue;
 		sphereOutline2.setMaterial(mat4);
-		sphereOutline2.setLocalScale((float)(this.radius+0.06*this.radius));
+		sphereOutline2.setLocalScale((float)(this.getRadius()+0.06*this.getRadius()));
 		mat4.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		sphereOutline2.setQueueBucket(Bucket.Transparent);
 		blue.setAlpha(0.05f);
